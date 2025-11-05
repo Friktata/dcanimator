@@ -1,0 +1,11 @@
+///////////////////////////////////////////////////////////////////////////////
+//  /usr/share/dcanimator/templates/.dcanimator
+//
+//  Default dcanimator config file.
+//
+
+main_bg         255 255 255
+main_fg         255 255 255
+
+panel_bg        255 255 255
+panel_fg        255 255 255
