@@ -19,7 +19,7 @@
  *  config_new()
  *
  */
-CONFIG config_new() {
+CONFIG config_new(void) {
 
    CONFIG                  config = {
        "",

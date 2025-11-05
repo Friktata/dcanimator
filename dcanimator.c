@@ -50,7 +50,7 @@ int main(
     }
     else {
         if (strcmp(file_t, "file") != 0) {
-            app_seterror(app.err_msg, "config_path \'%s\' is not a regular file (%s)\n", config_path, file_t);
+            app_seterror(app.err_msg, "Error: config_path \'%s\' is not a regular file (%s)\n", config_path, file_t);
             goto __main_error;
         }
     }
@@ -65,6 +65,13 @@ int main(
     }
 
     config_dump(&app.config, app.log_stream, "main app");
+
+    app_log(&app, "Initialising dcanimator...\n");
+    app_init(&app);
+
+    if (app.err_msg[0] != '\0') {
+        goto __main_error;
+    }
 
     goto __main_cleanup;
 

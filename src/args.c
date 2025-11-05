@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <unistd.h>
 
 #include "../include/app.h"
 #include "../include/file.h"
@@ -25,18 +26,31 @@ void __args_init(
 ) {
 
     char                    path[PATHLEN_MAX];
+    char                    base[PATHLEN_MAX];
+    char                    project_path[PATHLEN_MAX];
 
     memset(path, '\0', PATHLEN_MAX);
+    memset(base, '\0', PATHLEN_MAX);
+    memset(project_path, '\0', PATHLEN_MAX);
+
     strncpy(path, app->homepath, PATHLEN_MAX);
+    getcwd(base, PATHLEN_MAX);
+    snprintf(project_path, PATHLEN_MAX, "%s%c%s", base, PATH_SEPARATOR, "New_Project");
 
     strncpy(path, path_next(path, ".dcanimator"), PATHLEN_MAX);
 
     config_set(&app->args, "log_stream", "--stdout");
     config_set(&app->args, "err_stream", "--stderr");
+
+    config_set(&app->args, "start_path", base);
     config_set(&app->args, "config_path", path);
-    config_set(&app->args, "project_path", "./");
-    config_set(&app->args, "project_base", "");
+
+    config_set(&app->args, "project_path", project_path);
+    config_set(&app->args, "project_base", base);
     config_set(&app->args, "project_name", "New_Project");
+
+    config_set(&app->args, "project_height", "24");
+    config_set(&app->args, "project_width", "80");
 
 }
 
@@ -170,8 +184,45 @@ char *args_process(
             char *name = path_name((const char *) argv[arg]);
 
             config_set(&app->args, "project_path", argv[arg]);
-            config_set(&app->args, "project_base", base);
+
+            if (base[0] != '\0') {
+                config_set(&app->args, "project_base", base);
+            }    
+            else {
+                config_set(&app->args, "project_path", path_next(config_get(&app->args, "project_base"), name));
+            }
+    
             config_set(&app->args, "project_name", name);
+
+            continue;
+        }
+
+    //  --height
+    //
+    //  Specify project height (rows/lines).
+    //
+        if (strcmp(argv[arg], "--height") == 0) {
+            if (++arg >= argc || (argv[arg][0] == '-' && argv[arg][1] == '-')) {
+                app_seterror(app->err_msg, "Error in args_process(): The --height option requires a parameter\n");
+                return NULL;
+            }
+
+            config_set(&app->args, "project_height", argv[arg]);
+
+            continue;
+        }
+
+    //  --width
+    //
+    //  Specify project width (characters/columns).
+    //
+        if (strcmp(argv[arg], "--width") == 0) {
+            if (++arg >= argc || (argv[arg][0] == '-' && argv[arg][1] == '-')) {
+                app_seterror(app->err_msg, "Error in args_process(): The --width option requires a parameter\n");
+                return NULL;
+            }
+
+            config_set(&app->args, "project_width", argv[arg]);
 
             continue;
         }

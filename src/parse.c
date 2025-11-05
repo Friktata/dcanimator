@@ -9,8 +9,8 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "app.h"
-#include "list.h"
+#include "../include/app.h"
+#include "../include/list.h"
 
 
 /******************************************************************************

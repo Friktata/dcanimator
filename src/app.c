@@ -10,8 +10,10 @@
 #include <stdarg.h>
 
 #include "../include/app.h"
+#include "../include/file.h"
 #include "../include/list.h"
 #include "../include/config.h"
+#include "../include/project.h"
 
 
 /******************************************************************************
@@ -174,5 +176,50 @@ void app_cleanup(
             app->err_stream = NULL;
         }
     }
+
+}
+
+
+/******************************************************************************
+ *  app_init()
+ *
+ */
+void app_init(
+    APP                 *app
+) {
+
+    PROJECT             project = project_init(&app->args);
+
+    char                settings_path[PATHLEN_MAX];
+    char                *err;
+
+    memset(settings_path, '\0', PATHLEN_MAX);
+
+    if (project_exists(project.path) == false) {
+        app_log(app, "Creating new project \'%s\' in \'%s\'...\n", project.name, project.path);
+
+        if ((err = project_create(project.path)) != NULL) {
+            strncpy(app->err_msg, err, ERR_MSG_LEN);
+            return;
+        }
+
+        app_log(app, "Created project %s successfully!\n", project.name);
+    }
+    else {
+        app_log(app, "Opening existing project \'%s\'...\n", project.name);
+    }
+
+    strncpy(settings_path, path_next(project.path, ".settings"), PATHLEN_MAX);
+
+    app_log(app, "Loading settings file \'%s\' for project \'%s\'...\n", settings_path, project.name);
+    
+    config_load(&project.settings, settings_path);
+
+    if (project.err_msg[0] != '\0') {
+        strncpy(app->err_msg, project.err_msg, ERR_MSG_LEN);
+        return;
+    }
+
+    config_dump(&project.settings, app->log_stream, "Project settings");
 
 }

@@ -4,8 +4,10 @@
 //  Default dcanimator config file.
 //
 
-main_bg         255 255 255
+///////////////////////////////////////////////////////////////////////////////
+//  Main display background and foreground RGB values.
+//
+main_bg         32 220 128
 main_fg         255 255 255
 
-panel_bg        255 255 255
-panel_fg        255 255 255
+

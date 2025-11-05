@@ -16,7 +16,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "app.h"
+#include "../include/app.h"
 
 #define FILE_BUF_SIZE   8192
 

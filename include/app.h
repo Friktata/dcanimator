@@ -45,4 +45,6 @@ bool        app_iserror     (APP *);
 void        app_log         (APP *, const char *, ...);
 void        app_cleanup     (APP *);
 
+void        app_init        (APP *);
+
 #endif
