@@ -20,7 +20,7 @@
  *  app_new()
  *
  */
-APP app_new(void) {
+APP app_new() {
     
     APP                 app = {
         stdout,
@@ -162,6 +162,7 @@ void app_cleanup(
 ) {
 
     config_free(&app->config);
+    config_free(&app->args);
 
     if (app->log_stream != NULL) {
         if (app->log_stream != stdout && app->log_stream != stderr) {
@@ -198,7 +199,7 @@ void app_init(
     if (project_exists(project.path) == false) {
         app_log(app, "Creating new project \'%s\' in \'%s\'...\n", project.name, project.path);
 
-        if ((err = project_create(project.path)) != NULL) {
+        if ((err = project_create(project.name, project.path, project.width, project.height)) != NULL) {
             strncpy(app->err_msg, err, ERR_MSG_LEN);
             return;
         }
@@ -221,5 +222,7 @@ void app_init(
     }
 
     config_dump(&project.settings, app->log_stream, "Project settings");
+
+    config_free(&project.settings);
 
 }

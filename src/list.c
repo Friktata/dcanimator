@@ -173,11 +173,13 @@ char *list_add(
     else {
         item_index = list->items;
 
-        if ((new_list = realloc(list->item, (sizeof(char *) * (list->items + 1)))) == NULL) {
+        char **tmp = realloc(list->item, sizeof(char *) * (list->items + 1));
+        if (tmp == NULL) {
             app_seterror(list->err_msg, "Error in list_add(): %e\n");
             goto __list_add_error;
         }
 
+        new_list = tmp;
         list->items++;
     }
 
@@ -189,6 +191,8 @@ char *list_add(
     strncpy(new_list[item_index], validated, (strlen(validated) + 1));
 
     list->item = new_list;
+
+    free(validated);
 
     return NULL;
     

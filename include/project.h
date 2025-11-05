@@ -24,6 +24,6 @@ typedef struct __project {
 
 PROJECT     project_init        (CONFIG *);
 bool        project_exists      (const char *);
-char        *project_create     (const char *);
+char        *project_create     (const char *, const char *, int, int);
 
 #endif

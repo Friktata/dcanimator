@@ -1,4 +1,27 @@
 ///////////////////////////////////////////////////////////////////////////////
-//  dcanimator settings.
+//  Frames per second - this can be either 12, 24 or 30
 //
+    frames_per_second   24
 
+
+///////////////////////////////////////////////////////////////////////////////
+//  If max_frames > 0 then it sets a limit for the total number of frames
+//  that can be created.
+//
+    max_frames          0
+
+
+///////////////////////////////////////////////////////////////////////////////
+//  Max layers per frame - each frame has a limited number of layers,
+//  the minimum is 1 and the maximum is 12.
+//
+//  Setting a value < 1 or > 12 will default to 6.
+//
+    layers_per_frame    6
+
+
+///////////////////////////////////////////////////////////////////////////////
+//  Size of the undo stack.
+//
+    undo_stack_size     50
+    

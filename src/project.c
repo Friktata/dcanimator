@@ -81,11 +81,17 @@ bool project_exists(
  *
  */
 char *project_create(
-    const char          *project_path
+    const char          *project_name,
+    const char          *project_path,
+    int                 project_width,
+    int                 project_height
 ) {
 
     char                src[PATHLEN_MAX];
     char                dst[PATHLEN_MAX];
+
+    char                *file_data = NULL;
+    FILE                *stream;
 
     static char         err_msg[ERR_MSG_LEN];
 
@@ -102,9 +108,43 @@ char *project_create(
     strncpy(src, path_next(SHARE_PATH, ".settings"), PATHLEN_MAX);
     strncpy(dst, path_next((char *) project_path, ".settings"), PATHLEN_MAX);
 
-    if ((err = file_copy(src, dst)) != NULL) {
-        return err;
+    // if ((err = file_copy(src, dst)) != NULL) {
+    //     return err;
+    // }
+
+    if ((err = file_load(src, &file_data, 0)) != NULL) {
+        strncpy(err_msg, err, ERR_MSG_LEN);
+        return err_msg;
     }
+
+    if ((stream = fopen(dst, "w")) == NULL) {
+        free(file_data);
+        app_seterror(err_msg, "Error in project_create(): %e\n");
+        return err_msg;
+    }
+
+    fprintf(stream, "\
+///////////////////////////////////////////////////////////////////////////////\n\
+//  %s/.settings\n\
+//\n\
+\n\n\
+///////////////////////////////////////////////////////////////////////////////\n\
+//  Project name.\n\
+//\n\
+    name                %s\n\
+\n\n\
+///////////////////////////////////////////////////////////////////////////////\n\
+//  Project height/width (rows/columns)\n\
+//\n\
+    height              %d\n\
+    width               %d\n\
+\n\n\
+%s\n\
+\n\
+    ", project_path, project_name, project_width, project_height, file_data);
+
+    fclose(stream);
+    free(file_data);
 
     memset(src, '\0', PATHLEN_MAX);
     strncpy(src, path_next((char *) project_path, "frames"), PATHLEN_MAX);
