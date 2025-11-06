@@ -2,6 +2,10 @@
  *  dcanimator/src/project.c
  *
  */
+#define _GNU_SOURCE
+
+#include <wchar.h>
+#include <notcurses/notcurses.h>
 
 #include <errno.h>
 #include <stdio.h>
@@ -17,6 +21,75 @@
 #include "../include/path.h"
 #include "../include/config.h"
 #include "../include/project.h"
+
+
+#define SETTINGS_OPTIONS    8
+
+
+const char *__settings_option[SETTINGS_OPTIONS] = {
+    "path",
+    "name",
+    "width",
+    "height",
+    "frames_per_second",
+    "max_frames",
+    "layers_per_frame",
+    "undo_stack_size"
+};
+
+
+const char *__settings_template[SETTINGS_OPTIONS] = {
+    "///////////////////////////////////////////////////////////////////////////////\n\
+//  Project path.\n\
+//\n\
+        path                %s\n\n\n\
+",
+    "///////////////////////////////////////////////////////////////////////////////\n\
+//  Project name.\n\
+//\n\
+        name                %s\n\n\n\
+",
+    "///////////////////////////////////////////////////////////////////////////////\n\
+//  Canvas width.\n\
+//\n\
+        width               %s\n\n\n\
+",
+    "///////////////////////////////////////////////////////////////////////////////\n\
+//  Canvas height.\n\
+//\n\
+        height              %s\n\n\n\
+",
+    "///////////////////////////////////////////////////////////////////////////////\n\
+//  Frames per second.\n\
+//\n\
+//  Can be either 12, 24, 30 or 60. The default is 24.\n\
+//\n\
+        frames_per_second   %s\n\n\n\
+",
+    "///////////////////////////////////////////////////////////////////////////////\n\
+//  Max frames.\n\
+//\n\
+//  Setting this to 0 (default) places no limit on the total number of frames\n\
+//  available in the project.\n\
+//\n\
+        max_frames          %s\n\n\n\
+",
+    "///////////////////////////////////////////////////////////////////////////////\n\
+//  Layers per frame.\n\
+//\n\
+//  Any value in the inclusive range 1-12 is acceptable, the default setting\n\
+//  is 6.\n\
+//\n\
+        layers_per_frame    %s\n\n\n\
+",
+    "///////////////////////////////////////////////////////////////////////////////\n\
+//  Undo stack size.\n\
+//\n\
+//  Total number of undo/redo buffers in the stack - default value is 50\n\
+//\n\
+        undo_stack_size     %s\n\n\n\
+",
+};
 
 
 /******************************************************************************
@@ -38,6 +111,90 @@ PROJECT project_init(
     };
 
     return project;
+
+}
+
+
+/******************************************************************************
+ *  project_config()
+ *
+ */
+CONFIG project_config(
+    const char          *project_name,
+    const char          *project_path,
+    int                 project_width,
+    int                 project_height
+) {
+
+    CONFIG              config = config_new();
+
+    char                width[20];
+    char                height[20];
+
+    snprintf(width, 20, "%d", project_width);
+    snprintf(height, 20, "%d", project_height);
+
+    config_set(&config, "path", project_path);
+    config_set(&config, "name", project_name);
+
+    config_set(&config, "width", width);
+    config_set(&config, "height", height);
+
+    config_set(&config, "frames_per_second", "24");
+    config_set(&config, "max_frames", "0");
+
+    config_set(&config, "layers_per_frame", "6");
+    config_set(&config, "undo_stack_size", "50");
+
+    return config;
+
+}
+
+
+/******************************************************************************
+ *  project_save()
+ *
+ */
+char *project_save(
+    const char          *dst,
+    CONFIG              *config
+) {
+
+    FILE                *stream = fopen(dst, "w");
+
+    static char         err_msg[ERR_MSG_LEN];
+
+    memset(err_msg, '\0', ERR_MSG_LEN);
+
+    if (stream == NULL) {
+        app_seterror(err_msg, "Error in project_save(): Couldn\n't open file \'%s\' for writing (%e)\n", dst);
+        return err_msg;
+    }
+
+    fprintf(stream, "///////////////////////////////////////////////////////////////////////////////\n\
+//  %s/.settings\n\
+//\n\n", config_get(config, "path"));
+
+    for (int index = 0; index < config->name.items; index++) {
+        // if (strcmp(config->name.item[index], __settings_option[index])) {
+        int option;
+
+        for (option = 0; option < SETTINGS_OPTIONS; option++) {
+            if (strcasecmp(__settings_option[option], config->name.item[index]) == 0) {
+                break;
+            }
+        }
+
+        if (option >= SETTINGS_OPTIONS) {
+            app_seterror(err_msg, "Error in project_save(): Unknown option '\%s\'\n", config->name.item[index]);
+        }
+
+        fprintf(stream, __settings_template[option], config->data.item[index]);
+    }
+
+    fclose(stream);
+
+    return NULL;
 
 }
 
@@ -87,17 +244,20 @@ char *project_create(
     int                 project_height
 ) {
 
-    char                src[PATHLEN_MAX];
     char                dst[PATHLEN_MAX];
+    char                *err = NULL;
 
-    char                *file_data = NULL;
     FILE                *stream;
 
     static char         err_msg[ERR_MSG_LEN];
 
-    char                *err = NULL;
+    CONFIG              config = project_config(
+        project_name,
+        project_path,
+        project_width,
+        project_height
+    );
 
-    memset(src, '\0', PATHLEN_MAX);
     memset(dst, '\0', PATHLEN_MAX);
 
     if (mkdir(project_path, 0755) != 0) {
@@ -105,55 +265,27 @@ char *project_create(
         return err_msg;
     }
 
-    strncpy(src, path_next(SHARE_PATH, ".settings"), PATHLEN_MAX);
     strncpy(dst, path_next((char *) project_path, ".settings"), PATHLEN_MAX);
 
-    // if ((err = file_copy(src, dst)) != NULL) {
-    //     return err;
-    // }
-
-    if ((err = file_load(src, &file_data, 0)) != NULL) {
+    if ((err = project_save(dst, &config)) != NULL) {
         strncpy(err_msg, err, ERR_MSG_LEN);
         return err_msg;
     }
 
-    if ((stream = fopen(dst, "w")) == NULL) {
-        free(file_data);
-        app_seterror(err_msg, "Error in project_create(): %e\n");
-        return err_msg;
-    }
-
-    fprintf(stream, "\
-///////////////////////////////////////////////////////////////////////////////\n\
-//  %s/.settings\n\
-//\n\
-\n\n\
-///////////////////////////////////////////////////////////////////////////////\n\
-//  Project name.\n\
-//\n\
-    name                %s\n\
-\n\n\
-///////////////////////////////////////////////////////////////////////////////\n\
-//  Project height/width (rows/columns)\n\
-//\n\
-    height              %d\n\
-    width               %d\n\
-\n\n\
-%s\n\
-\n\
-    ", project_path, project_name, project_width, project_height, file_data);
-
-    fclose(stream);
-    free(file_data);
-
-    memset(src, '\0', PATHLEN_MAX);
-    strncpy(src, path_next((char *) project_path, "frames"), PATHLEN_MAX);
-
-    if (mkdir(src, 0755) != 0) {
-        app_seterror(err_msg, "£rror in project_create(): %e\n");
-        return err_msg;
-    }
+    config_free(&config);
 
     return NULL;
+
+}
+
+
+/******************************************************************************
+ *  project_start()
+ *
+ */
+char *project_start(
+    APP                 *app,
+    PROJECT             *project
+) {
 
 }

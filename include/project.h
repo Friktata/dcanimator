@@ -23,7 +23,10 @@ typedef struct __project {
 } PROJECT;
 
 PROJECT     project_init        (CONFIG *);
+CONFIG      project_config      (const char *, const char *, int, int);
+char        *project_save       (const char *, CONFIG *);
 bool        project_exists      (const char *);
 char        *project_create     (const char *, const char *, int, int);
+char        *project_start      (APP *, PROJECT *);
 
 #endif

@@ -15,9 +15,9 @@
 
 #define ERR_MSG_LEN     4096
 
-#include "../include/list.h"
-#include "../include/path.h"
-#include "../include/config.h"
+#include "list.h"
+#include "path.h"
+#include "config.h"
 
 #define UNAME_MAX_LEN   128
 
