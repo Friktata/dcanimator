@@ -1,6 +1,8 @@
 # Compiler
 CC = gcc
-CFLAGS = -Iinclude -std=c11 -g # -Wall -Wextra
+CFLAGS = -Iinclude -std=c11 -g -Wall -Wextra
+LDFLAGS = -lnotcurses -lnotcurses-core
+
 
 TARGET = dcanimator
 PREFIX ?= /usr/local
@@ -15,7 +17,7 @@ all: $(TARGET)
 	@rm -f $(OBJS_ROOT)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS_ROOT)
+	$(CC) $(CFLAGS) -o $@ $(OBJS_ROOT) $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $(notdir $@)

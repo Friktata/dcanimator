@@ -150,6 +150,8 @@ void app_log(
     vfprintf(app->log_stream, fmt, l);
     va_end(l);
 
+    fflush(app->log_stream);
+
 }
 
 
@@ -222,6 +224,8 @@ void app_init(
     }
 
     config_dump(&project.settings, app->log_stream, "Project settings");
+
+    project_start(app, &project);
 
     config_free(&project.settings);
 

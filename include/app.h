@@ -37,6 +37,8 @@ typedef struct __app {
     const char          *homepath;
     CONFIG              config;
     CONFIG              args;
+    unsigned int        term_y;
+    unsigned int        term_x;
 } APP;
 
 APP         app_new         (void);

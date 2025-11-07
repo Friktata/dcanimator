@@ -79,7 +79,7 @@ bool __buf_is_empty(
     char                *buf
 ) {
 
-    for (int index = 0; index < strlen(buf); index++) {
+    for (int index = 0; index < (int) strlen(buf); index++) {
         if (! __is_whitespace_char(buf[index]) && buf[index] != '\n' && buf[index] != '\r') {
             return false;
         }
@@ -271,10 +271,6 @@ char *parse_line(
 
     char                quote_char = '\0';
     char                last_char = '\0';
-
-    int                 paren = 0;
-    int                 curly = 0;
-    int                 block = 0;
 
     char                *token = NULL;
 

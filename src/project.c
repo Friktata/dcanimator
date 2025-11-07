@@ -21,6 +21,9 @@
 #include "../include/path.h"
 #include "../include/config.h"
 #include "../include/project.h"
+#include "../include/helpers.h"
+
+#include "../include/ui.h"
 
 
 #define SETTINGS_OPTIONS    8
@@ -42,12 +45,12 @@ const char *__settings_template[SETTINGS_OPTIONS] = {
     "///////////////////////////////////////////////////////////////////////////////\n\
 //  Project path.\n\
 //\n\
-        path                %s\n\n\n\
+        path                \"%s\"\n\n\n\
 ",
     "///////////////////////////////////////////////////////////////////////////////\n\
 //  Project name.\n\
 //\n\
-        name                %s\n\n\n\
+        name                \"%s\"\n\n\n\
 ",
     "///////////////////////////////////////////////////////////////////////////////\n\
 //  Canvas width.\n\
@@ -173,7 +176,7 @@ char *project_save(
 
     fprintf(stream, "///////////////////////////////////////////////////////////////////////////////\n\
 //  %s/.settings\n\
-//\n\n", config_get(config, "path"));
+//\n\n\n", config_get(config, "path"));
 
     for (int index = 0; index < config->name.items; index++) {
         // if (strcmp(config->name.item[index], __settings_option[index])) {
@@ -247,8 +250,6 @@ char *project_create(
     char                dst[PATHLEN_MAX];
     char                *err = NULL;
 
-    FILE                *stream;
-
     static char         err_msg[ERR_MSG_LEN];
 
     CONFIG              config = project_config(
@@ -287,5 +288,53 @@ char *project_start(
     APP                 *app,
     PROJECT             *project
 ) {
+
+    struct notcurses    *nc = notcurses_init(NULL, NULL);
+    struct ncplane      *display = notcurses_stddim_yx(nc, &app->term_y, &app->term_x);
+
+    if (nc == NULL) {
+        return app_seterror(app->err_msg, "Error in project_start(): Couldn\'t initialise notcurses...\n");
+    }
+
+    RGB                 display_fg = RGB_get(&app->config, "display_fg");
+    RGB                 display_bg = RGB_get(&app->config, "display_bg");
+
+    ncplane_set_fg_rgb8(display, display_fg.red, display_fg.green, display_fg.blue);
+    ncplane_set_bg_rgb8(display, display_bg.red, display_bg.green, display_bg.blue);
+
+    uint64_t channels = 0;
+
+    ncchannels_set_fg_rgb8(&channels, display_fg.red, display_fg.green, display_fg.blue);
+    ncchannels_set_bg_rgb8(&channels, display_bg.red, display_bg.green, display_bg.blue);
+
+    if(ncplane_set_base(display, " ", 0, channels) < 0){
+        return app_seterror(app->err_msg, "Error in project_start(): %e\n");
+    }
+
+    ui_init(app, nc);
+
+    if (app->err_msg[0] != '\0') {
+        return NULL;
+    }
+    
+    ncplane_erase(display);
+    notcurses_render(nc);
+
+    while (true) {
+        ncplane_putstr_yx(display, 10, 10, "Press \'q\' to quit");
+        notcurses_render(nc);
+
+        int ch = notcurses_get_blocking(nc, NULL);
+
+        if (ch == 'q') {
+            break;
+        }
+    }
+
+__project_start_cleanup:
+
+    notcurses_stop(nc);
+
+    return NULL;
 
 }

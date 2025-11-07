@@ -7,7 +7,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  Main display background and foreground RGB values.
 //
-main_bg         32 220 128
-main_fg         255 255 255
+    display_bg          128 128 128
+    display_fg          255 255 255
 
-
+    main_menu_fg        152 152 152
+    main_menu_bg        255 255 255
+    

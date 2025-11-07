@@ -35,7 +35,7 @@ void __args_init(
 
     strncpy(path, app->homepath, PATHLEN_MAX);
     getcwd(base, PATHLEN_MAX);
-    snprintf(project_path, PATHLEN_MAX, "%s%c%s", base, PATH_SEPARATOR, "New_Project");
+    snprintf(project_path, PATHLEN_MAX, "%s%cNew_Project", base, PATH_SEPARATOR);
 
     strncpy(path, path_next(path, ".dcanimator"), PATHLEN_MAX);
 
