@@ -25,6 +25,9 @@
 
 typedef enum __components {
     UI_MAIN_MENU = 0,
+    UI_TOOLBAR,
+    UI_TIMELINE,
+    UI_LAYERS,
     UI_COMPONENT_MAX
 } COMPONENTS;
 

@@ -24,7 +24,8 @@ typedef struct __component {
     unsigned char       flags;
     struct ncplane      *plane;
     char                err_msg[ERR_MSG_LEN];
-#define CMP_F_VISIBLE   0x01
+#define CMP_F_ENABLED   0x01
+#define CMP_F_VISIBLE   0x02
 } COMPONENT;
 
 COMPONENT   component_new       (const char *, int, AREA *, RGB *, RGB *, unsigned char);
