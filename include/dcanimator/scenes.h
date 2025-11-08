@@ -18,6 +18,7 @@
 #include "component.h"
 #include "ui.h"
 
-char        *scenes_init  (APP *, UI_COMPONENTS *);
+char        *scenes_init        (APP *, UI_COMPONENTS *);
+void        scenes_create_ui    (COMPONENT *);
 
 #endif

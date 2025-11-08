@@ -289,6 +289,8 @@ char *project_start(
     PROJECT             *project
 ) {
 
+    struct notcurses_options opts = {0};
+
     struct notcurses    *nc = notcurses_init(NULL, NULL);
     struct ncplane      *display = notcurses_stddim_yx(nc, &app->term_y, &app->term_x);
 
@@ -296,6 +298,13 @@ char *project_start(
         return app_seterror(app->err_msg, "Error in project_start(): Couldn\'t initialise notcurses...\n");
     }
 
+    if (app->term_y < 34 || app->term_x < 94) {
+        notcurses_stop(nc);
+        return app_seterror(app->err_msg, "Error in project_start(): We need at least 34 rows and 94 columns - current dimensions are %d rows, %d columns\n", app->term_y, app->term_x);
+    }
+
+    notcurses_mice_enable(nc, NCMICE_ALL_EVENTS);
+    
     RGB                 display_fg = RGB_get(&app->config, "display_fg");
     RGB                 display_bg = RGB_get(&app->config, "display_bg");
 
@@ -311,7 +320,7 @@ char *project_start(
         return app_seterror(app->err_msg, "Error in project_start(): %e\n");
     }
 
-    ui_init(app, nc);
+    UI_COMPONENTS       *components = ui_init(app, nc);
 
     if (app->err_msg[0] != '\0') {
         return NULL;
@@ -321,10 +330,23 @@ char *project_start(
     notcurses_render(nc);
 
     while (true) {
-        ncplane_putstr_yx(display, 10, 10, "Press \'q\' to quit");
+        ncplane_erase(display);
+        ui_refresh(components);
         notcurses_render(nc);
 
-        int ch = notcurses_get_blocking(nc, NULL);
+        struct ncinput ni;
+        int ch = notcurses_get_blocking(nc, &ni);
+
+        // if(ni.evtype == NCTYPE_PRESS && ni.id == NCKEY_BUTTON1) {
+        //     printf("Left click at %d,%d\n", ni.y, ni.x);
+        // }
+
+        if (ni.evtype == NCTYPE_PRESS && ni.id == NCKEY_BUTTON1) {
+            if (ni.y == 4 && (ni.x >= 2 && ni.x < 11)) {
+                fprintf(stdout, "New Scene");
+                fflush(stdout);
+            }
+        }
 
         if (ch == 'q') {
             break;

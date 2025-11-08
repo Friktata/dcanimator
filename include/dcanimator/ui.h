@@ -40,8 +40,12 @@ typedef struct __ui_components {
     unsigned int            term_y;
     COMPONENT               component[UI_COMPONENT_MAX];
     char                    err_msg[ERR_MSG_LEN];
+    unsigned char           *mode;
+#define UI_MODE_SCENE       0
+#define UI_MODE_FRAME       1
 } UI_COMPONENTS;
 
 UI_COMPONENTS   *ui_init    (APP *, struct notcurses *);
+void            ui_refresh  (UI_COMPONENTS *);
 
 #endif

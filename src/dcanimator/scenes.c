@@ -23,6 +23,23 @@
 
 
 /******************************************************************************
+ *  scenes_create_ui()
+ *
+ */
+void scenes_create_ui(
+    COMPONENT           *component
+) {
+
+    ncplane_putstr_yx(component->plane, 0, 1, "Scene Manager");
+    
+    ncplane_putstr_yx(component->plane, 2, 1, "New Scene");
+
+    return;
+
+}
+
+
+/******************************************************************************
  *  scenes_init()
  *
  */
@@ -41,8 +58,8 @@ char *scenes_init(
 
     AREA    _area = {
         .top = 2,
-        .left = 7,
-        .width = (ui_components->term_x - 20),
+        .left = 1,
+        .width = (ui_components->term_x - 2),
         .height = (ui_components->term_y - 11)
     };
 
@@ -69,7 +86,7 @@ char *scenes_init(
         _bg.blue = (unsigned int) atoi(_bg_blue);
     }
 
-    ui_components->component[UI_SCENES] = component_new("Scenes", UI_SCENES, &_area, &_fg, &_bg, 0);
+    ui_components->component[UI_SCENES] = component_new("Scenes", UI_SCENES, &_area, &_fg, &_bg, (CMP_F_VISIBLE));
 
     return NULL;
 

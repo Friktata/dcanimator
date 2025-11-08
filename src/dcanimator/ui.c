@@ -34,11 +34,12 @@ UI_COMPONENTS *ui_init(
     struct notcurses        *nc
 ) {
 
-    UI_COMPONENTS           ui_components = {
-        .nc = nc,
-        .term_x = app->term_x,
-        .term_y = app->term_y,
-    };
+    static  UI_COMPONENTS   ui_components;
+
+    ui_components.nc = nc;
+    ui_components.term_x = app->term_x;
+    ui_components.term_y = app->term_y;
+    ui_components.mode = UI_MODE_SCENE;
 
     memset(ui_components.err_msg, '\0', ERR_MSG_LEN);
 
@@ -60,11 +61,55 @@ UI_COMPONENTS *ui_init(
     component_init(nc, &ui_components.component[UI_CANVAS]);
     component_init(nc, &ui_components.component[UI_SCENES]);
 
+    ui_components.component[UI_MAIN_MENU].f_view = NULL;
+    ui_components.component[UI_TOOLBAR].f_view = NULL;
+    ui_components.component[UI_TIMELINE].f_view = NULL;
+    ui_components.component[UI_LAYERS].f_view = NULL;
+    ui_components.component[UI_CANVAS].f_view = NULL;
+    ui_components.component[UI_SCENES].f_view = &scenes_create_ui;
+
+    ui_components.component[UI_MAIN_MENU].f_render = &component_init;
+    ui_components.component[UI_TOOLBAR].f_render = &component_init;
+    ui_components.component[UI_TIMELINE].f_render = &component_init;
+    ui_components.component[UI_LAYERS].f_render = &component_init;
+    ui_components.component[UI_CANVAS].f_render = &component_init;
+    ui_components.component[UI_SCENES].f_render = &component_init;
+
     if (ui_components.component[UI_MAIN_MENU].err_msg[0] != '\0') {
         strncpy(app->err_msg, ui_components.component[UI_MAIN_MENU].err_msg, ERR_MSG_LEN);
         return NULL;
     }
 
     return &ui_components;
+
+}
+
+void ui_refresh(
+    UI_COMPONENTS           *ui_components
+) {
+
+    for (int index = 0; index < UI_COMPONENT_MAX; index++) {
+        
+        if (ui_components->component[index].plane != NULL) {
+            ncplane_destroy(ui_components->component[index].plane);
+            ui_components->component[index].plane = NULL;
+        }
+
+        if (! (ui_components->component[index].flags & CMP_F_VISIBLE)) {
+            if (! (ui_components->component[index].flags & CMP_F_REFRESH)) {
+                continue;
+            }
+            else {
+                ui_components->component[index].flags &= ~CMP_F_REFRESH;
+            }
+        }
+
+        ui_components->component[index].f_render(ui_components->nc, &ui_components->component[index]);
+
+        if (ui_components->component[index].f_view != NULL) {
+            ui_components->component[index].f_view(&ui_components->component[index]);
+        }
+
+    }
 
 }

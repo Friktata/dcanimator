@@ -13,6 +13,7 @@
 #include "../core/app.h"
 #include "../core/helpers.h"
 
+
 #define COMPONENT_ID_LEN    24
 
 typedef struct __component {
@@ -26,6 +27,9 @@ typedef struct __component {
     char                err_msg[ERR_MSG_LEN];
 #define CMP_F_ENABLED   0x01
 #define CMP_F_VISIBLE   0x02
+#define CMP_F_REFRESH   0x04
+    char                *(*f_render)(struct notcurses *, struct __component *);
+    void                (*f_view)(struct __component *);
 } COMPONENT;
 
 COMPONENT   component_new       (const char *, int, AREA *, RGB *, RGB *, unsigned char);

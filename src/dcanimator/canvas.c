@@ -69,7 +69,7 @@ char *canvas_init(
         _bg.blue = (unsigned int) atoi(_bg_blue);
     }
 
-    ui_components->component[UI_CANVAS] = component_new("Canvas", UI_CANVAS, &_area, &_fg, &_bg, 0);
+    ui_components->component[UI_CANVAS] = component_new("Canvas", UI_CANVAS, &_area, &_fg, &_bg, CMP_F_VISIBLE);
 
     return NULL;
 

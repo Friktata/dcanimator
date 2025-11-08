@@ -69,7 +69,7 @@ char *toolbar_init(
         _bg.blue = (unsigned int) atoi(_bg_blue);
     }
 
-    ui_components->component[UI_TOOLBAR] = component_new("Toolbar", UI_TOOLBAR, &_area, &_fg, &_bg, 0);
+    ui_components->component[UI_TOOLBAR] = component_new("Toolbar", UI_TOOLBAR, &_area, &_fg, &_bg, (CMP_F_VISIBLE));
 
     return NULL;
 

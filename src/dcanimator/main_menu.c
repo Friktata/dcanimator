@@ -69,7 +69,7 @@ char *main_menu_init(
         _bg.blue = (unsigned int) atoi(_bg_blue);
     }
 
-    ui_components->component[UI_MAIN_MENU] = component_new("Main Menu", UI_MAIN_MENU, &_area, &_fg, &_bg, 0);
+    ui_components->component[UI_MAIN_MENU] = component_new("Main Menu", UI_MAIN_MENU, &_area, &_fg, &_bg, (CMP_F_VISIBLE));
 
     return NULL;
 

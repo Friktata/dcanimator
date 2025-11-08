@@ -69,7 +69,7 @@ char *timeline_init(
         _bg.blue = (unsigned int) atoi(_bg_blue);
     }
 
-    ui_components->component[UI_TIMELINE] = component_new("Timeline", UI_TIMELINE, &_area, &_fg, &_bg, 0);
+    ui_components->component[UI_TIMELINE] = component_new("Timeline", UI_TIMELINE, &_area, &_fg, &_bg, (CMP_F_VISIBLE));
 
     return NULL;
 
