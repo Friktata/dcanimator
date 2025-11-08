@@ -9,7 +9,7 @@ PREFIX ?= /usr/local
 BINDIR = $(PREFIX)/bin
 SHAREDIR = /usr/share/$(TARGET)
 
-SRCS = $(wildcard src/*.c) dcanimator.c
+SRCS = $(wildcard src/*.c src/core/*.c src/dcanimator/*.c) dcanimator.c
 OBJS = $(SRCS:.c=.o)
 OBJS_ROOT = $(notdir $(OBJS))
 

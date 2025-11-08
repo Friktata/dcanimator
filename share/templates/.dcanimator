@@ -7,17 +7,24 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  Main display background and foreground RGB values.
 //
-    display_bg          128 128 128
+    display_bg          64 64 64
     display_fg          255 255 255
 
-    main_menu_fg        32 220 128
-    main_menu_bg        0 0 0
+    main_menu_fg        255 255 255
+    main_menu_bg        96 96 96
 
     toolbar_fg          32 220 128
     toolbar_bg          0 0 0
     
     timeline_fg         32 220 128
     timeline_bg         0 0 0
+    
+    scenes_fg           32 220 128
+    scenes_bg           0 0 0
 
     layers_fg           32 220 128
-    layers_bg           0 0 0 
+    layers_bg           0 0 0
+
+    canvas_fg           255 255 255
+    canvas_bg           0 0 0
+

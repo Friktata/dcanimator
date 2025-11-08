@@ -8,14 +8,14 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "include/app.h"
-#include "include/list.h"
-#include "include/file.h"
-#include "include/path.h"
-#include "include/parse.h"
-#include "include/config.h"
+#include "include/core/app.h"
+#include "include/core/list.h"
+#include "include/core/file.h"
+#include "include/core/path.h"
+#include "include/core/parse.h"
+#include "include/core/config.h"
 
-#include "include/args.h"
+#include "include/core/args.h"
 
 int main(
     int                 argc,
